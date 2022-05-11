@@ -1,17 +1,9 @@
-const createError = require("http-errors");
+const { Contact } = require("../../models/contact");
 
-const contactsOperations = require("../../models/contacts");
+const getAll = async (req, res) => {
+  const result = await Contact.find({}, "-createdAt -updatedAt");
 
-const getAll = async (req, res, next) => {
-  try {
-    const list = await contactsOperations.listContacts();
-
-    if (!list) throw createError(500, "Server Error!");
-
-    res.status(200).json({ status: "success", code: 200, data: [...list] });
-  } catch (err) {
-    next(err);
-  }
+  res.status(201).json({ status: "success", code: 201, result });
 };
 
 module.exports = getAll;

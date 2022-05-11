@@ -1,27 +1,16 @@
-const createError = require("http-errors");
+const { NotFound } = require("http-errors");
 
-const contactsOperations = require("../../models/contacts");
+const { Contact } = require("../../models/contact");
 
-const removeById = async (req, res, next) => {
-  try {
-    const { id } = req.params;
+const removeById = async (req, res) => {
+  const { id } = req.params;
 
-    const result = await contactsOperations.removeContact(id);
-
-    if (!result) {
-      throw createError(404, `Product ${id} not found`);
-    }
-
-    res.json({
-      status: "success",
-      code: 200,
-      data: {
-        result: result,
-      },
-    });
-  } catch (err) {
-    next(err);
+  const result = await Contact.findByIdAndRemove(id);
+  if (!result) {
+    throw NotFound(`Contact ${id} not found`);
   }
+
+  res.status(201).json({ status: "success", code: 201, result });
 };
 
 module.exports = removeById;
