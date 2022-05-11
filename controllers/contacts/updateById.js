@@ -10,7 +10,7 @@ const updateById = async (req, res) => {
     throw NotFound(`Contact ${id} not found!`);
   }
 
-  res.status(201).json({ status: "success", code: 201, result });
+  res.status(200).json({ status: "success", code: 200, result });
 };
 
 module.exports = updateById;
