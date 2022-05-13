@@ -3,23 +3,22 @@ const cors = require("cors");
 const mongoose = require("mongoose");
 require("dotenv").config();
 
-const { createError } = require("./helpers");
-
+const usersRouter = require("./routes/api/users");
 const contactsRouter = require("./routes/api/contacts");
 
-const { DB_HOST, PORT = 4000 } = process.env;
+const { DB_HOST } = process.env;
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
+app.use("/api/users", usersRouter);
 app.use("/api/contacts", contactsRouter);
 
 mongoose
   .connect(DB_HOST)
   .then(() => {
     console.log("Database connection successful");
-    app.listen(PORT);
   })
   .catch((err) => {
     console.error(err);

@@ -2,20 +2,37 @@ const express = require("express");
 const router = express.Router();
 
 const { ctrlWrapper } = require("../../helpers");
-const { validation, validationId } = require("../../middlewares");
+const {
+  validation,
+  validationId,
+  validationToken,
+} = require("../../middlewares");
 const { schemas } = require("../../models/contact");
-const { contacts: ctrl } = require("../../controllers");
+const { contactsController } = require("../../controllers");
 
-router.get("/", ctrlWrapper(ctrl.getAll));
+const ctrl = new contactsController();
 
-router.get("/:id", validationId, ctrlWrapper(ctrl.getById));
+router.get("/", validationToken, ctrlWrapper(ctrl.getAll));
 
-router.delete("/:id", validationId, ctrlWrapper(ctrl.removeById));
+router.get("/:id", validationToken, validationId, ctrlWrapper(ctrl.getById));
 
-router.post("/", validation(schemas.add), ctrlWrapper(ctrl.add));
+router.delete(
+  "/:id",
+  validationToken,
+  validationId,
+  ctrlWrapper(ctrl.removeById)
+);
+
+router.post(
+  "/",
+  validationToken,
+  validation(schemas.add),
+  ctrlWrapper(ctrl.add)
+);
 
 router.put(
   "/:id",
+  validationToken,
   validationId,
   validation(schemas.add),
   ctrlWrapper(ctrl.updateById)
@@ -23,6 +40,7 @@ router.put(
 
 router.patch(
   "/:id/favorite",
+  validationToken,
   validationId,
   validation(schemas.updateFavorite),
   ctrlWrapper(ctrl.updateFavoriteById)
