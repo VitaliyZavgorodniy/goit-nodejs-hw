@@ -12,9 +12,10 @@ class contactsController {
   };
 
   getById = async (req, res) => {
+    const { _id } = req?.user;
     const { id } = req.params;
 
-    const result = await service.getContactById(id);
+    const result = await service.getContactById(id, _id);
 
     res.status(200).json({ status: "success", code: 200, result });
   };

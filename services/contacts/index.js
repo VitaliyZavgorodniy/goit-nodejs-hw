@@ -5,15 +5,16 @@ const { Contact } = require("../../models/contact");
 
 class contactsService {
   getAllContacts = asyncHandler(async (id) => {
-    console.log(id);
     const result = await Contact.find({ owner: id }, "-createdAt -updatedAt");
 
-    
     return result;
   });
 
-  getContactById = asyncHandler(async (id) => {
-    const result = await Contact.findById(id, "-createdAt -updatedAt");
+  getContactById = asyncHandler(async (id, userID) => {
+    const result = await Contact.findOne(
+      { _id: id, owner: userID },
+      "-createdAt -updatedAt"
+    );
 
     if (!result) {
       throw NotFound("Not found");

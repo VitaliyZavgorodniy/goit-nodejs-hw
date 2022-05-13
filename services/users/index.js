@@ -53,6 +53,12 @@ class usersService {
 
     return { token };
   });
+
+  logoutUser = asyncHandler(async (id) => {
+    const result = await this.updateUserById(id, { token: null });
+
+    return result;
+  });
 }
 
 module.exports = usersService;

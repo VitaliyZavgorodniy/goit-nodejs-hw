@@ -16,10 +16,7 @@ const validationToken = async (req, res, next) => {
     const { id } = jwt.verify(token, SECRET_KEY);
     const user = await service.findUser({ _id: id });
 
-    console.log(id);
-    console.log(user);
-
-    if (!user) throw createError(401);
+    if (!user || !user.token) throw createError(401);
     req.user = user;
 
     next();
