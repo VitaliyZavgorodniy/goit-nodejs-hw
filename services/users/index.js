@@ -1,6 +1,7 @@
 const asyncHandler = require("express-async-handler");
 const createError = require("http-errors");
 const bcrypt = require("bcryptjs");
+const gravatar = require("gravatar");
 
 const { jwtGenerator } = require("../../helpers");
 
@@ -29,6 +30,9 @@ class usersService {
     const user = await User.create({
       email,
       password: await bcrypt.hash(password, 10),
+      avatarURL: gravatar.url(email, {
+        s: "250",
+      }),
       subscription,
     });
 
@@ -58,6 +62,12 @@ class usersService {
     const result = await this.updateUserById(id, { token: null });
 
     return result;
+  });
+
+  patchUserAvatar = asyncHandler(async (id, avatarURL) => {
+    await this.updateUserById(id, { avatarURL });
+
+    return avatarURL;
   });
 }
 
