@@ -10,17 +10,17 @@ const RESIZE_QUALITY = 80;
 const resizeAvatar = async ({ path }) => {
   const avatarPath = await Jimp.read(path)
     .then((lenna) => {
+      const fileName = uuidv4();
       const fileExtension = lenna.getExtension();
-      const fileName = `${uuidv4()}.${fileExtension}`;
 
       lenna
         .resize(RESIZE_HEIGHT, RESIZE_WIDTH)
         .quality(RESIZE_QUALITY)
-        .write(`./public/avatars/${fileName}`);
+        .write(`./public/avatars/${fileName}.${fileExtension}`);
 
       fs.unlink(path);
 
-      return fileName;
+      return `/${fileName}.${fileExtension}`;
     })
     .catch((err) => {
       throw createError(500, err.message);
