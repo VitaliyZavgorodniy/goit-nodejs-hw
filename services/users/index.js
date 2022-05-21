@@ -3,11 +3,8 @@ const createError = require("http-errors");
 const { NotFound } = require("http-errors");
 const bcrypt = require("bcryptjs");
 const gravatar = require("gravatar");
-const { v4: uuidv4 } = require("uuid");
 
-const { jwtGenerator, sendEmail } = require("../../helpers");
-
-const verificationEmail = require("../../emailTemplates/verificationEmail");
+const { jwtGenerator, sendConfirmEmail } = require("../../helpers");
 
 const { User } = require("../../models/user");
 
@@ -31,7 +28,7 @@ class usersService {
       throw createError(409, "Email in use!");
     }
 
-    const verificationToken = await this.createVerifyEmail(email);
+    const verificationToken = await sendConfirmEmail(email);
 
     const user = await User.create({
       email,
@@ -102,21 +99,13 @@ class usersService {
     if (user?.verify)
       throw createError(400, "Verification has already been passed");
 
-    const verificationToken = await this.createVerifyEmail(email);
+    const verificationToken = await sendConfirmEmail(email);
 
     const result = await this.updateUserById(user._id, {
       verificationToken,
     });
 
     return result;
-  });
-
-  createVerifyEmail = asyncHandler(async (email) => {
-    const verificationToken = uuidv4();
-
-    await sendEmail(verificationEmail({ email, verificationToken }));
-
-    return verificationToken;
   });
 }
 
