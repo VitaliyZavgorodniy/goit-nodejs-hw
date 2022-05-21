@@ -1,9 +1,13 @@
 const asyncHandler = require("express-async-handler");
 const createError = require("http-errors");
+const { NotFound } = require("http-errors");
 const bcrypt = require("bcryptjs");
 const gravatar = require("gravatar");
+const { v4: uuidv4 } = require("uuid");
 
-const { jwtGenerator } = require("../../helpers");
+const { jwtGenerator, sendEmail } = require("../../helpers");
+
+const verificationEmail = require("../../emailTemplates/verificationEmail");
 
 const { User } = require("../../models/user");
 
@@ -27,6 +31,8 @@ class usersService {
       throw createError(409, "Email in use!");
     }
 
+    const verificationToken = await this.createVerifyEmail(email);
+
     const user = await User.create({
       email,
       password: await bcrypt.hash(password, 10),
@@ -34,6 +40,7 @@ class usersService {
         s: "250",
       }),
       subscription,
+      verificationToken,
     });
 
     const token = jwtGenerator({ id: user._id });
@@ -44,6 +51,10 @@ class usersService {
 
   loginUser = asyncHandler(async ({ email, password }) => {
     const user = await this.findUser({ email }, "-createdAt -updatedAt");
+
+    if (!user.verify) {
+      throw createError(400, "User not verified");
+    }
 
     if (!user) {
       throw NotFound("User not found");
@@ -68,6 +79,44 @@ class usersService {
     await this.updateUserById(id, { avatarURL });
 
     return avatarURL;
+  });
+
+  verifyEmail = asyncHandler(async (verificationToken) => {
+    const user = await this.findUser({ verificationToken });
+
+    if (!user) throw NotFound("User not found");
+
+    await this.updateUserById(user._id, {
+      verificationToken: null,
+      verify: true,
+    });
+
+    return "Verification successful";
+  });
+
+  resendVerifyEmail = asyncHandler(async (email) => {
+    const user = await this.findUser({ email });
+
+    if (!user) throw NotFound("User not found");
+
+    if (user?.verify)
+      throw createError(400, "Verification has already been passed");
+
+    const verificationToken = await this.createVerifyEmail(email);
+
+    const result = await this.updateUserById(user._id, {
+      verificationToken,
+    });
+
+    return result;
+  });
+
+  createVerifyEmail = asyncHandler(async (email) => {
+    const verificationToken = uuidv4();
+
+    await sendEmail(verificationEmail({ email, verificationToken }));
+
+    return verificationToken;
   });
 }
 
