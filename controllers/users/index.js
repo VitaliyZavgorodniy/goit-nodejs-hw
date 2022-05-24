@@ -49,6 +49,28 @@ class usersController {
       result,
     });
   };
+
+  verifyEmail = async (req, res) => {
+    const { verificationToken } = req.params;
+
+    const result = await service.verifyEmail(verificationToken);
+
+    res.status(200).json({
+      status: "success",
+      code: 200,
+      result,
+    });
+  };
+
+  resendVerifyEmail = async (req, res) => {
+    await service.resendVerifyEmail(req.body.email);
+
+    res.status(200).json({
+      status: "success",
+      code: 200,
+      message: "Verification email sent",
+    });
+  };
 }
 
 module.exports = usersController;
