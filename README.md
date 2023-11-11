@@ -1,4 +1,9 @@
-### Команды:
-
-- `npm start` &mdash; старт сервера в режиме production
-- `npm run start:dev` &mdash; старт сервера в режиме разработки (development)
+### Commands
+```bash
+## Run server in dev mode
+$ npm run start:dev
+```
+```bash
+## Run build
+$ npm run build
+```
